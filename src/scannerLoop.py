@@ -60,25 +60,21 @@ def beginBarcodeScanner():
             time.sleep(0.1)
             for frame in camera.capture_continuous(rawframe, format='bgr', use_video_port=True):
                 image = frame.array
-                :with expression as target:
-                    passsweepLockout(lockoutDict)
-                codes = readBarcodes(image);
+                sweepLockout(lockoutDict)
+                codes = readBarcodes(image)
                 # for every code we scanned in the image, try and validate
                 for code in codes:
 
                     # TODO: database check via our scraper, AND check if lockout
-                    productName = isValidCode(code)
+                    #productName = isValidCode(code)
                     # if product name is None, then this if fails
-                    if productName:
+                    if True:
                         # TODO: beep or indicate it was scanned
                         # add code to the lockout
                         lockoutDict.update({code: time.time})
                         updateDatabase(updates, "MAIN_TEST_ID", "MAIN_TEST_NAME", "TODAY", GPIO.input(TOGGLE_PIN) == INSERT)
                 
-                # clear buffer (because we've been acumulating due to the API call)
-                 camera.close()
-                # begin camera capture again, and re-set the pointer to frame
-                frame = camera.capture_continuous(rawframe, format='bgr', use_video_port=True)
+                rawframe.truncate(0)
 
         except KeyboardInterrupt:
             print("Ctrl + C called")
