@@ -6,19 +6,25 @@ firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://pantry-pal-1a39b-default-rtdb.firebaseio.com/'
 })
 
-def updateDatabase(updates, ID, name, date, insert):
+def updateDatabase(ref, updates, ID, name, date, catType, insert):
+    updates = ref.get()
+
     if insert:
         if ID not in updates:
             updates[ID] = {"name": name}
             updates[ID]["dates"] = {"date1": date}
+            #updates[ID] = {"type": catType}
+            updates[ID]["type"] = catType
 
         else:
             l = len(updates[ID]["dates"])
+            print(l)
             updates[ID]["dates"]["date" + str(l + 1)] = date
 
     else:
         if ID in updates:
             l = len(updates[ID]["dates"])
+            print(l)
             
             if l == 1:
                 updates[ID] = None
@@ -31,6 +37,6 @@ def updateDatabase(updates, ID, name, date, insert):
 
 
     ref.update(updates)
-    updates = ref.get()
+    
 
 
