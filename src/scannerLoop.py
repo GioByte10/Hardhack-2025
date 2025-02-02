@@ -82,13 +82,12 @@ def beginBarcodeScanner():
                 # for every code we scanned in the image, try and validate
                 #rint(f'code len: {len(codes)}')
                 for code in codes:
-                    # TODO: database check via our scraper, AND check if lockout
+                    #  database check via our scraper, AND check if lockout
                     productName,catType = isValidCode(code)
                     # if product name is None, then this if failsf
                     if code not in lockoutDict:
                         print(code)
                         
-                        # TODO: beep or indicate it was scanned
                         # GPIO.output(BUZZER_PIN,GPIO.HIGH)
                         pwm.start(75)
                         buzzerTimer = time.time()
