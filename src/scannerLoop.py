@@ -18,7 +18,9 @@ updates = ref.get()
 GPIO.setmode(GPIO.BCM)
 
 TOGGLE_PIN = 17
+BUZZER_PIN = 27
 GPIO.setup(TOGGLE_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(BUZZER_PIN, GPIO.OUT)
 
 # set camera attributes
 camera = picamera.PiCamera()
@@ -31,6 +33,8 @@ INSERT = 1
 DELETE = 0
 
 LOCKOUT_TIME = 5 # in seconds
+
+BUZZER_TIME = 0.5 ## in  seconds
 
 
 # map code -> time added
@@ -68,6 +72,9 @@ def beginBarcodeScanner():
     while True:
         try:
             time.sleep(0.1)
+            buzzerTimer = 0
+            pwm = GPIO.PWM(BUZZER_PIN,440)
+            pwm.start(0)
             for frame in camera.capture_continuous(rawframe, format='bgr', use_video_port=True):
                 image = frame.array
                 sweepLockout(lockoutDict)
@@ -82,11 +89,18 @@ def beginBarcodeScanner():
                         print(code)
                         
                         # TODO: beep or indicate it was scanned
+                        # GPIO.output(BUZZER_PIN,GPIO.HIGH)
+                        pwm.start(75)
+                        buzzerTimer = time.time()
                         # lockoutDict.update({code: time.time()})
                         lockoutDict[code] = time.time()
                         updateDatabase(ref, updates, code, productName, time.strftime("%Y-%m-%d %H:%M:%S"),catType, GPIO.input(TOGGLE_PIN) == INSERT)
                         print(updates,ref.get())
                         
+                if time.time() - buzzerTimer >= BUZZER_TIME:
+                    buzzerTimer = 0
+                    pwm.start(0)
+                    
                 rawframe.truncate(0)
 
         except KeyboardInterrupt:
